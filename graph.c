@@ -135,6 +135,7 @@ static void FormatNum(unsigned long long n, char *buf, int len) {
 void PrintTableLine(FILE *stream, struct SummaryData *Data, int Counter)
 	{
 	char Buffer1[50];
+	char Buffer1b[50];
 	char Buffer2[50];
 	char Buffer3[50];
 	char Buffer4[50];
@@ -144,12 +145,24 @@ void PrintTableLine(FILE *stream, struct SummaryData *Data, int Counter)
 	char Buffer6[50];
 	char Buffer7[50];
 	char Buffer8[50];
+	char IPHostName[50];
 
+	//rdns(Buffer1b, Data->IP);
+	rdns(IPHostName, Data->IP);
+	//strcpy(Buffer1b, "Junk");
 	// First convert the info to nice, human readable stuff
-	if (Data->IP == 0)
-		strcpy(Buffer1, "Total");
-	else
+	if (Data->IP == 0) {
+		//Buffer1b[0]='\0';
+		strcpy(Buffer1, "TotalBuffer");
+		strcpy(Buffer1b, "TotalBuffer1b");
+	}
+	else {
+		Buffer1b[0]='\0';
 		HostIp2CharIp(Data->IP, Buffer1);
+	//	strcpy(Buffer1b, "Buffer1b");
+		strcat(Buffer1b, IPHostName);
+//		rdns(Buffer1b, Data->IP);
+	}	
 
     FormatNum(Data->Total,         Buffer2,  50);
 	FormatNum(Data->TotalSent,     Buffer3,  50);
@@ -170,7 +183,7 @@ void PrintTableLine(FILE *stream, struct SummaryData *Data, int Counter)
 		fprintf(stream, "<TD><a href=\"#%s-%c\">%s</a></TD>%s%s%s%s%s%s%s%s%s</TR>\n",
 			Buffer1, // Ip
 			config.tag,
-			Buffer1, // Ip
+			Buffer1b, // Ip
 			Buffer2, // Total
 			Buffer3, // TotalSent
 			Buffer4, // TotalReceived
@@ -469,12 +482,13 @@ unsigned long long int GraphData(gdImagePtr im, gdImagePtr im2, struct IPDataSto
     char Buffer[30];
     char Buffer2[50];
     
-    int blue, lblue, red, purple, green, brown, black;
-    int blue2, lblue2, red2, purple2, green2, brown2, black2;
+    int blue, lblue, red, yellow, purple, green, brown, black;
+    int blue2, lblue2, red2, yellow2, purple2, green2, brown2, black2;
 
 	unsigned long long int SentPeak = 0;
 	unsigned long long int ReceivedPeak = 0;
 
+    yellow   = gdImageColorAllocate(im, 255, 255, 0);
     purple   = gdImageColorAllocate(im, 255, 0, 255);
     green    = gdImageColorAllocate(im, 0, 255, 0);
     blue     = gdImageColorAllocate(im, 0, 0, 255);
@@ -483,6 +497,7 @@ unsigned long long int GraphData(gdImagePtr im, gdImagePtr im2, struct IPDataSto
     red      = gdImageColorAllocate(im, 255, 0, 0);
     black 	 = gdImageColorAllocate(im, 0, 0, 0);
     
+    yellow2  = gdImageColorAllocate(im2, 255, 255, 0);
     purple2   = gdImageColorAllocate(im2, 255, 0, 255);
     green2   = gdImageColorAllocate(im2, 0, 255, 0);
     blue2    = gdImageColorAllocate(im2, 0, 0, 255);
@@ -659,6 +674,7 @@ unsigned long long int GraphData(gdImagePtr im, gdImagePtr im2, struct IPDataSto
 
                 // Plot them!
 				// Sent
+                gdImageLine(im, Counter, (YHEIGHT-YOFFSET) - total[Counter], Counter, YHEIGHT-YOFFSET-1, yellow);
                 gdImageLine(im, Counter, (YHEIGHT-YOFFSET) - icmp[Counter], Counter, YHEIGHT-YOFFSET-1, red);
                 gdImageLine(im, Counter, (YHEIGHT-YOFFSET) - udp[Counter], Counter, (YHEIGHT-YOFFSET) - icmp[Counter] - 1, brown);
                 gdImageLine(im, Counter, (YHEIGHT-YOFFSET) - tcp[Counter], Counter, (YHEIGHT-YOFFSET) - udp[Counter] - 1, green);
@@ -667,6 +683,7 @@ unsigned long long int GraphData(gdImagePtr im, gdImagePtr im2, struct IPDataSto
                 gdImageLine(im, Counter, (YHEIGHT-YOFFSET) - ftp[Counter], Counter, (YHEIGHT-YOFFSET) - http[Counter] - 1, lblue);
 								
 				// Receive
+                gdImageLine(im2, Counter, (YHEIGHT-YOFFSET) - total2[Counter], Counter, YHEIGHT-YOFFSET-1, yellow2);
                 gdImageLine(im2, Counter, (YHEIGHT-YOFFSET) - icmp2[Counter], Counter, YHEIGHT-YOFFSET-1, red2);
                 gdImageLine(im2, Counter, (YHEIGHT-YOFFSET) - udp2[Counter], Counter, (YHEIGHT-YOFFSET) - icmp2[Counter] - 1, brown2);
                 gdImageLine(im2, Counter, (YHEIGHT-YOFFSET) - tcp2[Counter], Counter, (YHEIGHT-YOFFSET) - udp2[Counter] - 1, green2);
@@ -918,5 +935,4 @@ void PrepareXAxis(gdImagePtr im, time_t timestamp)
     	x = (MarkTime-sample_begin)*((XWIDTH-XOFFSET)/config.range) + XOFFSET;
         }
     }
-
 
