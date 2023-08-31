@@ -147,21 +147,16 @@ void PrintTableLine(FILE *stream, struct SummaryData *Data, int Counter)
 	char Buffer8[50];
 	char IPHostName[50];
 
-	//rdns(Buffer1b, Data->IP);
 	rdns(IPHostName, Data->IP);
-	//strcpy(Buffer1b, "Junk");
 	// First convert the info to nice, human readable stuff
 	if (Data->IP == 0) {
-		//Buffer1b[0]='\0';
-		strcpy(Buffer1, "TotalBuffer");
-		strcpy(Buffer1b, "TotalBuffer1b");
+		strcpy(Buffer1, "Total");
+		strcpy(Buffer1b, "Total");
 	}
 	else {
 		Buffer1b[0]='\0';
 		HostIp2CharIp(Data->IP, Buffer1);
-	//	strcpy(Buffer1b, "Buffer1b");
 		strcat(Buffer1b, IPHostName);
-//		rdns(Buffer1b, Data->IP);
 	}	
 
     FormatNum(Data->Total,         Buffer2,  50);
